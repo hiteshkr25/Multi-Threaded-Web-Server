@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Server Performance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background: #0f1724; color: #e6eef8; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 8px; padding: 16px; border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 6px 24px rgba(2,6,23,0.6); }
+    .small-muted { color: #9aa6b2; font-size: 0.9rem; }
+    .stat { font-weight: 700; font-size: 1.6rem; }
+    .success-chip { background: rgba(16,185,129,0.12); color: #10b981; padding: 4px 8px; border-radius: 6px; font-weight:600; }
+    .danger-chip { background: rgba(239,68,68,0.12); color:#ef4444; padding: 4px 8px; border-radius: 6px; font-weight:600; }
+  </style>
+</head>
+<body class="min-h-screen p-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Server Performance Dashboard</h1>
+        <p class="small-muted">Enterprise view — concurrency, latency, cache & sessions</p>
+      </div>
+      <div class="flex items-center space-x-4">
+
+        <!-- load-type selector -->
+        <select id="load-type" class="bg-gray-800 text-white px-3 py-2 rounded">
+          <option value="continuous">Continuous</option>
+          <option value="burst">Burst Test</option>
+          <option value="spike">Spike Test</option>
+          <option value="soak">Soak Test</option>
+        </select>
+
+        <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Start Test</button>
+
+        <button onclick="stopTest()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+          Stop Test
+        </button>
+
+        <button id="toggle-cache" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded">Toggle Cache</button>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT SIDE -->
+      <section class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Throughput Chart -->
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <div class="small-muted">Active Clients</div>
+              <div id="active-clients" class="stat">0</div>
+            </div>
+            <div>
+              <div class="small-muted">Total Requests</div>
+              <div id="total-requests" class="stat text-right">0</div>
+            </div>
+          </div>
+          <canvas id="throughputChart" height="140"></canvas>
+        </div>
+
+        <!-- RESPONSE + CACHE -->
+        <div class="card">
+          <div class="small-muted mb-2">Avg Response Time</div>
+          <div id="avg-response" class="stat mb-2">0 ms</div>
+          <div class="small-muted mb-4">Sessions: <span id="unique-sessions">0</span></div>
+
+          <div class="small-muted">Cache</div>
+          <div class="flex items-center space-x-3 mt-2">
+            <div id="cache-status" class="success-chip">Enabled</div>
+            <div class="small-muted">Hits: <span id="cache-hits">0</span> / Misses: <span id="cache-misses">0</span></div>
+          </div>
+        </div>
+
+        <!-- Latency Chart -->
+        <div class="card md:col-span-2">
+          <div class="small-muted mb-2">Latency Trend (last points)</div>
+          <canvas id="latencyChart" height="100"></canvas>
+        </div>
+
+        <!-- Status Chart -->
+        <div class="card md:col-span-2">
+          <div class="small-muted mb-2">HTTP Status Breakdown</div>
+          <canvas id="statusChart" height="120"></canvas>
+        </div>
+
+        <!-- Session Analytics -->
+        <div class="card md:col-span-2">
+          <div class="small-muted mb-2">Active User Sessions</div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="small-muted text-left">
+                <th>Session</th>
+                <th>Hits</th>
+                <th>Last Path</th>
+                <th>Device</th>
+              </tr>
+            </thead>
+            <tbody id="session-table">
+              <tr><td colspan="4" class="py-3 small-muted text-center">No data yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Geo Heatmap Placeholder -->
+        <div class="card md:col-span-2">
+          <div class="small-muted mb-2">Geo Request Distribution</div>
+          <div id="geo-map" class="w-full h-64 bg-gray-900 rounded flex items-center justify-center text-gray-400">
+            Heatmap Placeholder — integrate IP → location mapping
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT SIDE PANEL -->
+      <aside class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="small-muted">Thread Pool</div>
+            <div id="thread-pool" class="stat">10</div>
+          </div>
+          <div>
+            <div class="small-muted">Queue</div>
+            <div id="queue-size" class="stat">0</div>
+          </div>
+        </div>
+
+        <div class="small-muted mb-2">Recent Requests</div>
+        <div class="overflow-auto" style="max-height: 420px;">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left small-muted">
+                <th class="py-2">IP</th>
+                <th>Path</th>
+                <th class="text-right">Time</th>
+              </tr>
+            </thead>
+            <tbody id="recent-requests">
+              <tr><td colspan="3" class="py-4 small-muted text-center">No requests yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+
+<script>
+const maxPoints = 30;
+const throughputCtx = document.getElementById('throughputChart').getContext('2d');
+const latencyCtx = document.getElementById('latencyChart').getContext('2d');
+
+const throughputData = { labels: [], datasets: [
+  { label: 'Active Clients', data: [], borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.3 },
+  { label: 'Total Requests', data: [], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.06)', fill:true, tension:0.3, yAxisID:'y1' }
+]};
+
+const throughputChart = new Chart(throughputCtx, {
+  type: 'line', data: throughputData,
+  options: {
+    responsive:true,
+    interaction:{mode:'index', intersect:false},
+    scales: {
+      x: { ticks: { color: '#9aa6b2' }, grid: { color: 'rgba(255,255,255,0.02)' } },
+      y: { position:'left', ticks: { color: '#10b981' } },
+      y1: { position:'right', ticks: { color: '#3b82f6' }, grid:{ display:false } }
+    }
+  }
+});
+
+const latencyData = { labels: [], datasets:[{ label:'Latency (ms)', data: [], borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.06)', fill:true, tension:0.3 }]};
+const latencyChart = new Chart(latencyCtx, { type:'line', data: latencyData, options:{ responsive:true, scales:{ x:{ ticks:{ color:'#9aa6b2' } }, y:{ ticks:{ color:'#f97316' } } } } });
+
+function pushThroughputPoint(label, active, total) {
+  throughputData.labels.push(label);
+  throughputData.datasets[0].data.push(active);
+  throughputData.datasets[1].data.push(total);
+  if (throughputData.labels.length > maxPoints) {
+    throughputData.labels.shift();
+    throughputData.datasets.forEach(ds => ds.data.shift());
+  }
+  throughputChart.update('none');
+}
+
+function pushLatencyPoint(label, val) {
+  latencyData.labels.push(label);
+  latencyData.datasets[0].data.push(val);
+  if (latencyData.labels.length > maxPoints) {
+    latencyData.labels.shift();
+    latencyData.datasets.forEach(ds => ds.data.shift());
+  }
+  latencyChart.update('none');
+}
+
+/* status doughnut */
+const statusCtx = document.getElementById("statusChart").getContext("2d");
+const statusChart = new Chart(statusCtx, {
+  type: "doughnut",
+  data: {
+    labels: ["200 OK", "400 Errors", "404 Not Found", "500 Server Errors"],
+    datasets: [{
+      data: [0, 0, 0, 0],
+      backgroundColor: ["#10b981", "#facc15", "#3b82f6", "#ef4444"]
+    }]
+  }, options: { responsive: true }
+});
+
+/* fetch metrics and update */
+async function fetchMetrics() {
+  try {
+    const res = await fetch('/metrics');
+    const data = await res.json();
+
+    document.getElementById('active-clients').textContent = data.active_clients ?? 0;
+    document.getElementById('total-requests').textContent = data.total_requests ?? 0;
+    document.getElementById('avg-response').textContent = ((data.average_response_time ?? 0) * 1000).toFixed(2) + ' ms';
+    document.getElementById('unique-sessions').textContent = data.unique_sessions ?? 0;
+    document.getElementById('cache-hits').textContent = data.cache_hits ?? 0;
+    document.getElementById('cache-misses').textContent = data.cache_misses ?? 0;
+    document.getElementById('thread-pool').textContent = data.thread_pool_size ?? '-';
+    document.getElementById('queue-size').textContent = data.queue_size ?? 0;
+
+    const nowLabel = new Date().toLocaleTimeString();
+    pushThroughputPoint(nowLabel, data.active_clients ?? 0, data.total_requests ?? 0);
+
+    if (data.latency_trend?.length) {
+      pushLatencyPoint(nowLabel, data.latency_trend.slice(-1)[0]);
+    }
+
+    // status code numbers: data.status_codes expected numeric map
+    const s = data.status_codes || {};
+    const values = [
+      s["200"] || 0,
+      s["400"] || 0,
+      s["404"] || 0,
+      s["500"] || 0
+    ];
+    statusChart.data.datasets[0].data = values;
+    statusChart.update('none');
+
+    // session table
+    const sBody = document.getElementById("session-table");
+    if (data.session_summary?.length) {
+      sBody.innerHTML = data.session_summary.map(it => `
+        <tr class="border-t border-white/5">
+          <td class="py-2 small-muted">${it.session_id}</td>
+          <td class="py-2">${it.hit_count}</td>
+          <td class="py-2">${it.last_path || "-"}</td>
+          <td class="py-2 small-muted">${it.device_type || ""}</td>
+        </tr>`).join("");
+    }
+
+    // recent requests
+    const tbody = document.getElementById('recent-requests');
+    if (data.recent_requests?.length) {
+      tbody.innerHTML = data.recent_requests.map(r => `
+        <tr class="border-t border-white/5">
+          <td class="py-2 small-muted">${r.ip}</td>
+          <td class="py-2">${r.path}</td>
+          <td class="py-2 text-right small-muted">${((r.response_time||0)*1000).toFixed(1)} ms</td>
+        </tr>`).join('');
+    }
+
+  } catch(e) {
+    // silently ignore, but you can console.log(e)
+  }
+}
+
+setInterval(fetchMetrics, 1000);
+fetchMetrics();
+
+/* Start/Stop button behaviour */
+document.getElementById('start-btn').addEventListener('click', async () => {
+    const mode = document.getElementById("load-type")?.value || "continuous";
+
+    const payload = {
+        mode: mode,
+        clients: 100,
+        path: "/index.html",
+        rounds: 1,
+        stagger_ms: 5
+    };
+
+    const btn = document.getElementById('start-btn');
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+
+    try {
+        const res = await fetch('/start_test', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        btn.textContent = 'Running...';
+        setTimeout(() => { btn.textContent = 'Start Test'; btn.disabled = false; }, 3000);
+    } catch (err) {
+        console.error("Start test failed:", err);
+        btn.textContent = 'Start Test'; btn.disabled = false;
+    }
+});
+
+async function stopTest() {
+  try {
+    await fetch("/stop_test", { method:"POST" });
+    alert("Load test stopped");
+  } catch(e) {
+    console.error("Stop error", e);
+  }
+}
+
+document.getElementById('toggle-cache').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/toggle_cache');
+    const j = await res.json();
+    document.getElementById('cache-status').textContent = j.cache_enabled ? 'Enabled' : 'Disabled';
+  } catch(e) { console.error(e); }
+});
+</script>
+
+</body>
+</html>

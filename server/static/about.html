@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Multi-Threaded Web Server</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        p, li {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li:before {
+            content: "✓ ";
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .tech {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 About This Project</h1>
+
+        <h2>Project Overview</h2>
+        <p>
+            This is a complete multi-threaded web server implementation that demonstrates core Operating System concepts
+            including concurrency, synchronization, resource sharing, and real-time system monitoring.
+        </p>
+
+        <h2>Key Features</h2>
+        <ul>
+            <li>Multi-threaded architecture with thread pool for efficient resource management</li>
+            <li>TCP socket-based HTTP server handling concurrent client connections</li>
+            <li>In-memory caching system for improved performance</li>
+            <li>Cookie-based session management for unique client tracking</li>
+            <li>Real-time performance metrics and monitoring dashboard</li>
+            <li>Automated load testing with 100+ concurrent clients</li>
+            <li>Thread-safe shared data structures using locks</li>
+            <li>Comprehensive logging system</li>
+        </ul>
+
+        <h2>OS Concepts Demonstrated</h2>
+        <ul>
+            <li>Concurrency: Multiple threads handling simultaneous requests</li>
+            <li>Synchronization: Thread-safe access to shared resources</li>
+            <li>Resource Management: Thread pool for efficient CPU utilization</li>
+            <li>I/O Operations: Socket programming and file handling</li>
+            <li>Process Communication: Inter-process data sharing via sockets</li>
+        </ul>
+
+        <h2>Technology Stack</h2>
+        <div class="tech-stack">
+            <span class="tech">Python 3</span>
+            <span class="tech">Socket Programming</span>
+            <span class="tech">Threading</span>
+            <span class="tech">Flask</span>
+            <span class="tech">TailwindCSS</span>
+            <span class="tech">Chart.js</span>
+            <span class="tech">Matplotlib</span>
+        </div>
+
+        <p style="margin-top: 40px;">
+            <a href="/">← Back to Home</a>
+        </p>
+    </div>
+</body>
+</html>
