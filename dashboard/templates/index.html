@@ -7,40 +7,180 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background: #0f1724; color: #e6eef8; }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 8px; padding: 16px; border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 6px 24px rgba(2,6,23,0.6); }
-    .small-muted { color: #9aa6b2; font-size: 0.9rem; }
-    .stat { font-weight: 700; font-size: 1.6rem; }
-    .success-chip { background: rgba(16,185,129,0.12); color: #10b981; padding: 4px 8px; border-radius: 6px; font-weight:600; }
-    .danger-chip { background: rgba(239,68,68,0.12); color:#ef4444; padding: 4px 8px; border-radius: 6px; font-weight:600; }
+    body { 
+      background: #0a0e1a; 
+      color: #e6eef8; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .card { 
+      background: linear-gradient(180deg, rgba(20,30,50,0.8), rgba(15,23,38,0.9)); 
+      border-radius: 12px; 
+      padding: 20px; 
+      border: 1px solid rgba(100,130,180,0.15); 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+    .card:hover {
+      border-color: rgba(100,130,180,0.25);
+      transition: border-color 0.3s ease;
+    }
+    .small-muted { 
+      color: #8b95a5; 
+      font-size: 0.875rem; 
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    .stat { 
+      font-weight: 700; 
+      font-size: 2rem; 
+      line-height: 1.2;
+      background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .success-chip { 
+      background: rgba(16,185,129,0.15); 
+      color: #10b981; 
+      padding: 6px 12px; 
+      border-radius: 8px; 
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    .danger-chip { 
+      background: rgba(239,68,68,0.15); 
+      color: #ef4444; 
+      padding: 6px 12px; 
+      border-radius: 8px; 
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59,130,246,0.4);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+    }
+    .btn-secondary {
+      background: rgba(100,116,139,0.3);
+      color: #e2e8f0;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: 1px solid rgba(148,163,184,0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(100,116,139,0.4);
+      border-color: rgba(148,163,184,0.5);
+    }
+    .geo-bar {
+      height: 24px;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .geo-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(15,23,38,0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 2px solid rgba(100,130,180,0.2);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(100,130,180,0.08);
+      transition: background 0.2s ease;
+    }
+    tbody tr:hover {
+      background: rgba(59,130,246,0.05);
+    }
+    tbody td {
+      padding: 12px 8px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-200 { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .status-400 { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .status-404 { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+    .status-500 { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
   </style>
 </head>
-<body class="min-h-screen p-8">
+<body class="min-h-screen p-6">
   <div class="max-w-7xl mx-auto">
 
     <!-- HEADER -->
-    <header class="flex items-center justify-between mb-6">
+    <header class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-2xl font-bold">Server Performance Dashboard</h1>
+        <h1 class="text-3xl font-bold mb-1" style="background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Server Performance Dashboard
+        </h1>
         <p class="small-muted">Enterprise view — concurrency, latency, cache & sessions</p>
       </div>
-      <div class="flex items-center space-x-4">
-
-        <!-- load-type selector -->
-        <select id="load-type" class="bg-gray-800 text-white px-3 py-2 rounded">
+      <div class="flex items-center space-x-3">
+        <select id="load-type" class="bg-gray-800/50 text-white px-4 py-2 rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none">
           <option value="continuous">Continuous</option>
           <option value="burst">Burst Test</option>
           <option value="spike">Spike Test</option>
           <option value="soak">Soak Test</option>
         </select>
-
-        <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Start Test</button>
-
-        <button onclick="stopTest()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
-          Stop Test
-        </button>
-
-        <button id="toggle-cache" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded">Toggle Cache</button>
+        <button id="start-btn" class="btn-primary">Start Test</button>
+        <button onclick="stopTest()" class="btn-danger">Stop Test</button>
+        <button id="toggle-cache" class="btn-secondary">Toggle Cache</button>
       </div>
     </header>
 
@@ -51,14 +191,14 @@
 
         <!-- Throughput Chart -->
         <div class="card">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-4">
             <div>
               <div class="small-muted">Active Clients</div>
               <div id="active-clients" class="stat">0</div>
             </div>
-            <div>
+            <div class="text-right">
               <div class="small-muted">Total Requests</div>
-              <div id="total-requests" class="stat text-right">0</div>
+              <div id="total-requests" class="stat">0</div>
             </div>
           </div>
           <canvas id="throughputChart" height="140"></canvas>
@@ -67,84 +207,94 @@
         <!-- RESPONSE + CACHE -->
         <div class="card">
           <div class="small-muted mb-2">Avg Response Time</div>
-          <div id="avg-response" class="stat mb-2">0 ms</div>
-          <div class="small-muted mb-4">Sessions: <span id="unique-sessions">0</span></div>
+          <div id="avg-response" class="stat mb-4">0 ms</div>
+          <div class="small-muted mb-2">Sessions: <span id="unique-sessions" class="text-blue-400 font-semibold">0</span></div>
 
-          <div class="small-muted">Cache</div>
+          <div class="small-muted mb-2">Cache</div>
           <div class="flex items-center space-x-3 mt-2">
             <div id="cache-status" class="success-chip">Enabled</div>
-            <div class="small-muted">Hits: <span id="cache-hits">0</span> / Misses: <span id="cache-misses">0</span></div>
+            <div class="small-muted">Hits: <span id="cache-hits" class="text-green-400">0</span> / Misses: <span id="cache-misses" class="text-yellow-400">0</span></div>
           </div>
         </div>
 
         <!-- Latency Chart -->
         <div class="card md:col-span-2">
-          <div class="small-muted mb-2">Latency Trend (last points)</div>
+          <div class="small-muted mb-3">Latency Trend (last points)</div>
           <canvas id="latencyChart" height="100"></canvas>
         </div>
 
         <!-- Status Chart -->
-        <div class="card md:col-span-2">
-          <div class="small-muted mb-2">HTTP Status Breakdown</div>
-          <canvas id="statusChart" height="120"></canvas>
+        <div class="card">
+          <div class="small-muted mb-3">HTTP Status Breakdown</div>
+          <canvas id="statusChart" height="180"></canvas>
+        </div>
+
+        <!-- Geo Distribution -->
+        <div class="card">
+          <div class="small-muted mb-3">Geo Request Distribution</div>
+          <div id="geo-chart" class="space-y-3">
+            <div class="small-muted text-center py-8">No geographic data yet</div>
+          </div>
         </div>
 
         <!-- Session Analytics -->
         <div class="card md:col-span-2">
-          <div class="small-muted mb-2">Active User Sessions</div>
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="small-muted text-left">
-                <th>Session</th>
-                <th>Hits</th>
-                <th>Last Path</th>
-                <th>Device</th>
-              </tr>
-            </thead>
-            <tbody id="session-table">
-              <tr><td colspan="4" class="py-3 small-muted text-center">No data yet</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Geo Heatmap Placeholder -->
-        <div class="card md:col-span-2">
-          <div class="small-muted mb-2">Geo Request Distribution</div>
-          <div id="geo-map" class="w-full h-64 bg-gray-900 rounded flex items-center justify-center text-gray-400">
-            Heatmap Placeholder — integrate IP → location mapping
+          <div class="small-muted mb-3">Active User Sessions</div>
+          <div class="overflow-auto" style="max-height: 320px;">
+            <table>
+              <thead>
+                <tr class="small-muted text-left">
+                  <th>Session ID</th>
+                  <th>Hits</th>
+                  <th>Last Path</th>
+                  <th>Device</th>
+                </tr>
+              </thead>
+              <tbody id="session-table">
+                <tr><td colspan="4" class="py-4 small-muted text-center">No session data yet</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
       </section>
 
       <!-- RIGHT SIDE PANEL -->
-      <aside class="card">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <div class="small-muted">Thread Pool</div>
-            <div id="thread-pool" class="stat">10</div>
-          </div>
-          <div>
-            <div class="small-muted">Queue</div>
-            <div id="queue-size" class="stat">0</div>
+      <aside class="space-y-6">
+        
+        <!-- Thread Pool Info -->
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="small-muted">Thread Pool</div>
+              <div id="thread-pool" class="stat">10</div>
+            </div>
+            <div class="text-right">
+              <div class="small-muted">Queue</div>
+              <div id="queue-size" class="stat">0</div>
+            </div>
           </div>
         </div>
 
-        <div class="small-muted mb-2">Recent Requests</div>
-        <div class="overflow-auto" style="max-height: 420px;">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-left small-muted">
-                <th class="py-2">IP</th>
-                <th>Path</th>
-                <th class="text-right">Time</th>
-              </tr>
-            </thead>
-            <tbody id="recent-requests">
-              <tr><td colspan="3" class="py-4 small-muted text-center">No requests yet</td></tr>
-            </tbody>
-          </table>
+        <!-- Recent Requests -->
+        <div class="card">
+          <div class="small-muted mb-3">Recent Requests</div>
+          <div class="overflow-auto" style="max-height: 500px;">
+            <table>
+              <thead>
+                <tr class="text-left small-muted">
+                  <th class="py-2">IP</th>
+                  <th>Path</th>
+                  <th class="text-right">Time</th>
+                </tr>
+              </thead>
+              <tbody id="recent-requests">
+                <tr><td colspan="3" class="py-4 small-muted text-center">No requests yet</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </aside>
 
     </main>
@@ -155,26 +305,103 @@ const maxPoints = 30;
 const throughputCtx = document.getElementById('throughputChart').getContext('2d');
 const latencyCtx = document.getElementById('latencyChart').getContext('2d');
 
-const throughputData = { labels: [], datasets: [
-  { label: 'Active Clients', data: [], borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.3 },
-  { label: 'Total Requests', data: [], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.06)', fill:true, tension:0.3, yAxisID:'y1' }
-]};
+const throughputData = { 
+  labels: [], 
+  datasets: [
+    { 
+      label: 'Active Clients', 
+      data: [], 
+      borderColor: '#10b981', 
+      backgroundColor: 'rgba(16,185,129,0.1)', 
+      fill: true, 
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4
+    },
+    { 
+      label: 'Total Requests', 
+      data: [], 
+      borderColor: '#3b82f6', 
+      backgroundColor: 'rgba(59,130,246,0.08)', 
+      fill: true, 
+      tension: 0.4, 
+      yAxisID: 'y1',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4
+    }
+  ]
+};
 
 const throughputChart = new Chart(throughputCtx, {
-  type: 'line', data: throughputData,
+  type: 'line', 
+  data: throughputData,
   options: {
-    responsive:true,
-    interaction:{mode:'index', intersect:false},
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#9aa6b2', font: { size: 11 } }
+      }
+    },
     scales: {
-      x: { ticks: { color: '#9aa6b2' }, grid: { color: 'rgba(255,255,255,0.02)' } },
-      y: { position:'left', ticks: { color: '#10b981' } },
-      y1: { position:'right', ticks: { color: '#3b82f6' }, grid:{ display:false } }
+      x: { 
+        ticks: { color: '#6b7280', font: { size: 10 } }, 
+        grid: { color: 'rgba(100,130,180,0.08)' } 
+      },
+      y: { 
+        position: 'left', 
+        ticks: { color: '#10b981', font: { size: 10 } },
+        grid: { color: 'rgba(100,130,180,0.08)' }
+      },
+      y1: { 
+        position: 'right', 
+        ticks: { color: '#3b82f6', font: { size: 10 } }, 
+        grid: { display: false } 
+      }
     }
   }
 });
 
-const latencyData = { labels: [], datasets:[{ label:'Latency (ms)', data: [], borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.06)', fill:true, tension:0.3 }]};
-const latencyChart = new Chart(latencyCtx, { type:'line', data: latencyData, options:{ responsive:true, scales:{ x:{ ticks:{ color:'#9aa6b2' } }, y:{ ticks:{ color:'#f97316' } } } } });
+const latencyData = { 
+  labels: [], 
+  datasets: [{
+    label: 'Latency (ms)', 
+    data: [], 
+    borderColor: '#f97316', 
+    backgroundColor: 'rgba(249,115,22,0.1)', 
+    fill: true, 
+    tension: 0.4,
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHoverRadius: 4
+  }]
+};
+
+const latencyChart = new Chart(latencyCtx, { 
+  type: 'line', 
+  data: latencyData, 
+  options: { 
+    responsive: true, 
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: { 
+      x: { 
+        ticks: { color: '#6b7280', font: { size: 10 } },
+        grid: { color: 'rgba(100,130,180,0.08)' }
+      }, 
+      y: { 
+        ticks: { color: '#f97316', font: { size: 10 } },
+        grid: { color: 'rgba(100,130,180,0.08)' }
+      } 
+    } 
+  } 
+});
 
 function pushThroughputPoint(label, active, total) {
   throughputData.labels.push(label);
@@ -197,7 +424,6 @@ function pushLatencyPoint(label, val) {
   latencyChart.update('none');
 }
 
-/* status doughnut */
 const statusCtx = document.getElementById("statusChart").getContext("2d");
 const statusChart = new Chart(statusCtx, {
   type: "doughnut",
@@ -205,12 +431,26 @@ const statusChart = new Chart(statusCtx, {
     labels: ["200 OK", "400 Errors", "404 Not Found", "500 Server Errors"],
     datasets: [{
       data: [0, 0, 0, 0],
-      backgroundColor: ["#10b981", "#facc15", "#3b82f6", "#ef4444"]
+      backgroundColor: ["#10b981", "#facc15", "#3b82f6", "#ef4444"],
+      borderWidth: 0
     }]
-  }, options: { responsive: true }
+  }, 
+  options: { 
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { 
+          color: '#9aa6b2',
+          font: { size: 11 },
+          padding: 12
+        }
+      }
+    }
+  }
 });
 
-/* fetch metrics and update */
 async function fetchMetrics() {
   try {
     const res = await fetch('/metrics');
@@ -232,49 +472,91 @@ async function fetchMetrics() {
       pushLatencyPoint(nowLabel, data.latency_trend.slice(-1)[0]);
     }
 
-    // status code numbers: data.status_codes expected numeric map
+    // Update status codes
     const s = data.status_codes || {};
     const values = [
-      s["200"] || 0,
-      s["400"] || 0,
-      s["404"] || 0,
-      s["500"] || 0
+      parseInt(s["200"]) || 0,
+      parseInt(s["400"]) || 0,
+      parseInt(s["404"]) || 0,
+      parseInt(s["500"]) || 0
     ];
     statusChart.data.datasets[0].data = values;
     statusChart.update('none');
 
-    // session table
+    // Update cache status chip
+    if (data.cache_enabled) {
+      document.getElementById('cache-status').className = 'success-chip';
+      document.getElementById('cache-status').textContent = 'Enabled';
+    } else {
+      document.getElementById('cache-status').className = 'danger-chip';
+      document.getElementById('cache-status').textContent = 'Disabled';
+    }
+
+    // Update geo distribution
+    const geoChart = document.getElementById('geo-chart');
+    if (data.geo && Object.keys(data.geo).length > 0) {
+      const geoEntries = Object.entries(data.geo).sort((a, b) => b[1] - a[1]);
+      const maxGeo = Math.max(...geoEntries.map(e => e[1]));
+      geoChart.innerHTML = geoEntries.map(([country, count]) => {
+        const percentage = maxGeo > 0 ? (count / maxGeo * 100) : 0;
+        return `
+          <div class="flex items-center justify-between">
+            <div class="small-muted w-12">${country}</div>
+            <div class="flex-1 mx-3">
+              <div class="geo-bar" style="width: ${percentage}%"></div>
+            </div>
+            <div class="small-muted w-16 text-right">${count}</div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      geoChart.innerHTML = '<div class="small-muted text-center py-8">No geographic data yet</div>';
+    }
+
+    // Update session table
     const sBody = document.getElementById("session-table");
     if (data.session_summary?.length) {
       sBody.innerHTML = data.session_summary.map(it => `
-        <tr class="border-t border-white/5">
-          <td class="py-2 small-muted">${it.session_id}</td>
-          <td class="py-2">${it.hit_count}</td>
-          <td class="py-2">${it.last_path || "-"}</td>
-          <td class="py-2 small-muted">${it.device_type || ""}</td>
-        </tr>`).join("");
+        <tr>
+          <td class="small-muted font-mono text-xs">${it.session_id.substring(0, 8)}...</td>
+          <td class="text-green-400 font-semibold">${it.hit_count}</td>
+          <td class="small-muted">${it.last_path || "-"}</td>
+          <td>
+            <span class="status-badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);">
+              ${it.device_type || "unknown"}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+    } else {
+      sBody.innerHTML = '<tr><td colspan="4" class="py-4 small-muted text-center">No session data yet</td></tr>';
     }
 
-    // recent requests
+    // Update recent requests
     const tbody = document.getElementById('recent-requests');
     if (data.recent_requests?.length) {
       tbody.innerHTML = data.recent_requests.map(r => `
-        <tr class="border-t border-white/5">
-          <td class="py-2 small-muted">${r.ip}</td>
-          <td class="py-2">${r.path}</td>
-          <td class="py-2 text-right small-muted">${((r.response_time||0)*1000).toFixed(1)} ms</td>
-        </tr>`).join('');
+        <tr>
+          <td class="small-muted font-mono text-xs">${r.ip}</td>
+          <td class="small-muted">${r.path}</td>
+          <td class="text-right">
+            <span class="text-orange-400 font-semibold">${((r.response_time||0)*1000).toFixed(1)}</span>
+            <span class="small-muted">ms</span>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="3" class="py-4 small-muted text-center">No requests yet</td></tr>';
     }
 
   } catch(e) {
-    // silently ignore, but you can console.log(e)
+    console.error('Fetch error:', e);
   }
 }
 
 setInterval(fetchMetrics, 1000);
 fetchMetrics();
 
-/* Start/Stop button behaviour */
 document.getElementById('start-btn').addEventListener('click', async () => {
     const mode = document.getElementById("load-type")?.value || "continuous";
 
@@ -301,14 +583,17 @@ document.getElementById('start-btn').addEventListener('click', async () => {
         setTimeout(() => { btn.textContent = 'Start Test'; btn.disabled = false; }, 3000);
     } catch (err) {
         console.error("Start test failed:", err);
-        btn.textContent = 'Start Test'; btn.disabled = false;
+        btn.textContent = 'Start Test'; 
+        btn.disabled = false;
     }
 });
 
 async function stopTest() {
   try {
-    await fetch("/stop_test", { method:"POST" });
-    alert("Load test stopped");
+    await fetch("/stop_test", { method: "POST" });
+    const btn = document.getElementById('start-btn');
+    btn.textContent = 'Start Test';
+    btn.disabled = false;
   } catch(e) {
     console.error("Stop error", e);
   }
@@ -318,8 +603,17 @@ document.getElementById('toggle-cache').addEventListener('click', async () => {
   try {
     const res = await fetch('/toggle_cache');
     const j = await res.json();
-    document.getElementById('cache-status').textContent = j.cache_enabled ? 'Enabled' : 'Disabled';
-  } catch(e) { console.error(e); }
+    const statusEl = document.getElementById('cache-status');
+    if (j.cache_enabled) {
+      statusEl.className = 'success-chip';
+      statusEl.textContent = 'Enabled';
+    } else {
+      statusEl.className = 'danger-chip';
+      statusEl.textContent = 'Disabled';
+    }
+  } catch(e) { 
+    console.error(e); 
+  }
 });
 </script>
 
